@@ -1,12 +1,7 @@
 #pragma once
 #include <stddef.h>
 
-// Defining ssize_t
-#ifdef _MLIBC_64BIT
-typedef long long ssize_t;
-#elifdef __32BIT__
-typedef long int ssize_t;
-#endif
+typedef ptrdiff_t ssize_t;
 
 typedef unsigned long int uid_t;
 typedef unsigned long int gid_t;
