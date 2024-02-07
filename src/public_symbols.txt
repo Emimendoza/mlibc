@@ -1,0 +1,3 @@
+_start
+syscall
+exit

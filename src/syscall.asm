@@ -1,4 +1,4 @@
-global _mlibc_syscall_64
+global _mlibc_syscall_64, _mlibc_sysexit
 
 section .text
 _mlibc_syscall:
@@ -20,4 +20,10 @@ mov r8, r9
 mov r9, [rsp + 8]
 syscall
 ret
+
+_mlibc_sysexit:
+    ; Args:
+    ; rdi: exit code
+    mov rax, 60
+    syscall
 
