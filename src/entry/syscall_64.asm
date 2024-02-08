@@ -1,4 +1,4 @@
-global _mlibc_syscall_64, _mlibc_sysexit
+global _mlibc_syscall_64, _mlibc_sysexit_64
 
 section .text
 _mlibc_syscall:

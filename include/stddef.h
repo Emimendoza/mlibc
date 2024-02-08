@@ -11,3 +11,5 @@ typedef int64_t ptrdiff_t;
 typedef uint32_t size_t;
 typedef int32_t ptrdiff_t;
 #endif
+
+#define NULL nullptr

@@ -13,23 +13,18 @@
         size_t elem_size;\
     }
 
-#define vector_init(vec) \
+// Returns 0 on success 1 on failure
+#define vector_init(vec) ({ \
     do {                 \
         (vec).elem_size = sizeof(typeof(*vec.data)); \
         (vec).data = (typeof(vec.data)) malloc(DEFAULT_VECTOR_CAPACITY*(vec).elem_size); \
         (vec).size = 0;  \
-        (vec).capacity = DEFAULT_VECTOR_CAPACITY;                      \
-    } while(0)
+        (vec).capacity = DEFAULT_VECTOR_CAPACITY; \
+    } while(0);  \
+    (vec).data == NULL; \
+})
 
-#define vector_push(vec, elem) \
-    do {                        \
-        if((vec).size == (vec).capacity) { \
-            (vec).capacity *= 2; \
-            (vec).data = (typeof(vec.data)) realloc((vec).data, (vec).capacity*(vec).elem_size); \
-        } \
-        (vec).data[(vec).size++] = elem; \
-    } while(0)
-
+// Assumes that the vector is not empty
 #define vector_pop(vec) \
     do {                \
         if((vec).size > 0) { \
@@ -53,3 +48,25 @@
     do {                  \
         free((vec).data); \
     } while(0)
+
+// Returns 0 on success 1 on failure
+#define vector_push(vec, elem) ({ \
+    int result;                   \
+    if((vec).size == (vec).capacity) { \
+        (vec).capacity *= 2; \
+        typeof(vec.data) res_ptr = (typeof(vec.data)) realloc((vec).data, (vec).capacity*(vec).elem_size); \
+        if(res_ptr == NULL) { \
+            result = 1; \
+        } else { \
+            (vec).data = res_ptr; \
+            (vec).data[(vec).size] = elem; \
+            (vec).size++; \
+            result = 0; \
+        }                         \
+    } else { \
+        (vec).data[(vec).size] = elem; \
+        (vec).size++; \
+        result = 0; \
+    }                             \
+    result;                       \
+})
