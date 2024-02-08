@@ -14,8 +14,9 @@ set(CMAKE_ASM_NASM_OBJECT_FORMAT elf64)
 
 file(GLOB mephilibc_files
         "src/*.c"
-        "src/*.h"
+        "src/**/*.c"
         "src/*.asm"
+        "src/**/*.asm"
 )
 # we also need to set the public symbols file
 set(PUBLIC_SYMBOLS_FILE "${CMAKE_CURRENT_SOURCE_DIR}/src/public_symbols.txt")
