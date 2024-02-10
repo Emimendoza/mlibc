@@ -12,6 +12,13 @@ include_directories("./include")
 # we also need to set the object format to elf64 for the assembly files
 set(CMAKE_ASM_NASM_OBJECT_FORMAT elf64)
 
+# check if bool is a builtin type
+try_compile(BOOL_IS_BUILTIN "${CMAKE_BINARY_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}/cmake/checks/bool_is_builtin.c")
+if (BOOL_IS_BUILTIN)
+    add_definitions(-D__bool_true_false_are_defined=1)
+else ()
+    add_definitions(-D__bool_true_false_are_defined=0)
+endif ()
 file(GLOB mephilibc_files
         "src/*.c"
         "src/**/*.c"

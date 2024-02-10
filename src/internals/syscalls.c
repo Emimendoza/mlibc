@@ -34,7 +34,7 @@ ssize_t __write(int fd, const void* buf, size_t count) {
     return (ssize_t) _mlibc_syscall(SYS_write, fd, (ptr_t)buf, count, 0, 0, 0);
 }
 
-void* __map(void* addr, size_t length, PROT prot, MAP flags, int fd, off_t offset) {
+void* __mmap(void* addr, size_t length, PROT prot, MAP flags, int fd, off_t offset) {
     return _mlibc_syscall(SYS_mmap, (ptr_t)addr, length, prot, flags, fd, offset);
 }
 

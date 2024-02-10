@@ -19,7 +19,7 @@ typedef enum {
 }MAP;
 
 
-void* __map(void* addr, size_t length, PROT prot, MAP flags, int fd, off_t offset);
+void* __mmap(void* addr, size_t length, PROT prot, MAP flags, int fd, off_t offset);
 int __munmap(void* addr, size_t length);
 int __mprotect(void* addr, size_t length, PROT prot);
 size_t __getpagesize();

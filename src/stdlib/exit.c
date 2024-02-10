@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdatomic.h>
 #include <internals/vector.h>
+#include <internals/debug.h>
 
 #if _MLIBC_WORDSIZE == 8
 [[noreturn]] extern void _mlibc_sysexit_64(int exit_code);
@@ -28,6 +29,7 @@ volatile uint8_t _atexit_lock = 0;
     }
     vector_free(_mlibc_atexit_funcs);
     atomic_store(&_atexit_lock, 0);
+    _mlibc_dealloc_all();
     _mlibc_sysexit(exit_code);
 }
 

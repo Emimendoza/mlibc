@@ -68,3 +68,11 @@ char* strchr(const char* str, int c) {
     }
     return (char*)str;
 }
+
+void* memset(void* ptr, int value, size_t num) {
+    unsigned char* p = (unsigned char*)ptr;
+    while (num--) {
+        *p++ = (unsigned char)value;
+    }
+    return ptr;
+}
