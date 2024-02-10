@@ -2,6 +2,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdatomic.h>
+#include <stdbool.h>
 
 int mtx_init(mtx_t *mtx, int type) {
     if(mtx == NULL) {
