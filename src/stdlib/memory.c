@@ -24,7 +24,7 @@ void* malloc(size_t size){
     }
     lock_heap();
 
-    size_t page_size = getpagesize();
+    size_t page_size = __getpagesize();
 
     unlock_heap();
     return NULL;

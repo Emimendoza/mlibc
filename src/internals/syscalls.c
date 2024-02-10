@@ -2,6 +2,7 @@
 #include <internals/syscall-table.h>
 #include <stdatomic.h>
 #include <internals/file.h>
+#include <string.h>
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wvoid-pointer-to-int-cast"
@@ -16,18 +17,6 @@ typedef uint64_t ptr_t;
 volatile size_t _mlibc_page_size = 0;
 volatile uint8_t _mlibc_page_size_lock = 0;
 
-// Helper function
-size_t _index_of(const char* str, char c, size_t start) {
-    size_t i = -1;
-    for (size_t j = start; str[j] != '\0'; j++) {
-        if (str[j] == c) {
-            i = j;
-            break;
-        }
-    }
-    return i;
-}
-
 
 int __open(const char* path, int flags, mode_t mode) {
     return (int) _mlibc_syscall(SYS_open, (ptr_t)path, flags, mode, 0, 0, 0);
@@ -39,6 +28,10 @@ int __close(int fd) {
 
 ssize_t __read(int fd, void* buf, size_t count) {
     return (ssize_t) _mlibc_syscall(SYS_read, fd, (ptr_t)buf, count, 0, 0, 0);
+}
+
+ssize_t __write(int fd, const void* buf, size_t count) {
+    return (ssize_t) _mlibc_syscall(SYS_write, fd, (ptr_t)buf, count, 0, 0, 0);
 }
 
 void* __map(void* addr, size_t length, PROT prot, MAP flags, int fd, off_t offset) {
@@ -71,11 +64,26 @@ size_t __getpagesize() {
             atomic_store(&_mlibc_page_size_lock, 0);
             return 0;
         }
-        const char* target = "KernelPageSize:";
-        const uint8_t target_len = 14;
-        char* line;
+        const char* target = "KernelPageSize:\0";
+        const uint8_t target_len = strlen(target);
         size_t i = 0;
-
+        while (i < read){
+            if (strncmp(buf + i, target, target_len) == 0) {
+                i += target_len;
+                while (buf[i] == ' ' || buf[i] == '\t') {
+                    i++;
+                }
+                _mlibc_page_size = 0;
+                while (buf[i] >= '0' && buf[i] <= '9') {
+                    _mlibc_page_size = _mlibc_page_size * 10 + (buf[i] - '0');
+                    i++;
+                }
+                // The page size is in kB, so we need to multiply it by 1024
+                _mlibc_page_size *= 1024;
+                break;
+            }
+            i++;
+        }
     }
     atomic_store(&_mlibc_page_size_lock, 0);
     return _mlibc_page_size;
