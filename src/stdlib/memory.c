@@ -221,6 +221,9 @@ void* realloc(void* ptr, size_t size){
         return NULL;
     }
     lock_heap();
+    child_block_t* block = (child_block_t *) ptr - 1;
+    // Check if next child block is free and big enough
+    // TODO: Implement this
 
     unlock_heap();
     return NULL;
