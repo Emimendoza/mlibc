@@ -1,11 +1,7 @@
 #pragma once
-#include "wordsize.h"
+#include "internal-signed.h"
 
-typedef signed char int8_t;
-typedef signed short int int16_t;
-typedef signed int int32_t;
-#if _MLIBC_WORDSIZE == 8
-typedef signed long int int64_t;
-#else
-__extension__ typedef signed long long int int64_t;
-#endif
+typedef _mlibc_int8_t int8_t;
+typedef _mlibc_int16_t int16_t;
+typedef _mlibc_int32_t int32_t;
+typedef _mlibc_int64_t int64_t;

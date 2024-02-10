@@ -44,6 +44,9 @@
 #define vector_get(vec, index) \
     ((vec).data[index])
 
+#define vector_exits(vec) \
+    ((vec).data != NULL)
+
 #define vector_free(vec) \
     do {                  \
         free((vec).data); \
