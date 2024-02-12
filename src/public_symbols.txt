@@ -1,5 +1,4 @@
 _start
-syscall
 exit
 malloc
 calloc

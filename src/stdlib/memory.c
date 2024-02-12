@@ -102,15 +102,12 @@ size_t round_up(size_t size, size_t multiple){
     return block;
 }
 
-
-void* malloc(size_t size){
-    if(size == 0){
+void* _malloc_no_lock(size_t size){
+    if(size == 0) {
         return NULL;
     }
-    lock_heap();
-
     // Finding first block that fits
-     heap_block_t* block = find_block(&heap, size+sizeof(child_block_t));
+    heap_block_t* block = find_block(&heap, size+sizeof(child_block_t));
 
     // If no block is found, create a new one
     if(block == NULL){
@@ -122,7 +119,7 @@ void* malloc(size_t size){
     }
 
     // Finding first child block that fits
-     child_block_t* child = find_child_block(block, size+sizeof(child_block_t));
+    child_block_t* child = find_child_block(block, size+sizeof(child_block_t));
 
     // This should never return NULL
     if(child == NULL){
@@ -149,8 +146,17 @@ void* malloc(size_t size){
     child->is_free = false;
     block->allocated_children++;
     block->free_size -= child->size;
-    unlock_heap();
     return (void *) (child + 1);
+}
+
+void* malloc(size_t size){
+    if(size == 0){
+        return NULL;
+    }
+    lock_heap();
+    void* ptr = _malloc_no_lock(size);
+    unlock_heap();
+    return ptr;
 }
 
 int optimize_block(heap_block_t* block){
@@ -183,20 +189,26 @@ int optimize_block(heap_block_t* block){
     return 0;
 }
 
-void free(void* ptr){
+void _free_no_lock(void* ptr){
     if(ptr == NULL){
         return;
     }
-    lock_heap();
     child_block_t* block = (child_block_t *) ptr - 1;
     block->is_free = true;
     heap_block_t* parent_block = (heap_block_t *) block->parent;
     parent_block->free_size += block->size;
     parent_block->allocated_children--;
     if(optimize_block(parent_block)!=0){
-        unlock_heap();
         __failure("Failed to deallocate memory");
     }
+}
+
+void free(void* ptr){
+    if(ptr == NULL){
+        return;
+    }
+    lock_heap();
+    _free_no_lock(ptr);
     unlock_heap();
 }
 
@@ -212,6 +224,63 @@ void* calloc(size_t num, size_t size){
     return ptr;
 }
 
+void shrink_child(child_block_t* child, size_t new_size){
+    if(child->size - new_size < sizeof(child_block_t)){
+        return;
+    }
+    child_block_t* new_child = (child_block_t*)(((uint8_t*)child) + new_size + sizeof(child_block_t));
+    new_child->size = child->size - new_size - sizeof(child_block_t);
+    new_child->is_free = true;
+    new_child->next = child->next;
+    new_child->prev = (struct child_block_t*)child;
+    new_child->parent = (struct heap_block_t*)child->parent;
+    child->size = new_size;
+    child->next = (struct child_block_t*)new_child;
+    if(new_child->next != NULL){
+        ((child_block_t*)new_child->next)->prev = (struct child_block_t*)new_child;
+    }
+    heap_block_t* parent = (heap_block_t*)child->parent;
+    parent->free_size += new_child->size + sizeof(child_block_t);
+    if(optimize_block(parent)!=0){
+        __failure("Failed to deallocate memory");
+    }
+}
+
+// Assumes that child->next is NOT NULL and is FREE and child->next->size >= new_size
+void grow_child(child_block_t* child, size_t new_size){
+    child_block_t* next = (child_block_t*)child->next;
+    if(next->size - new_size < sizeof(child_block_t)){
+        child->size += next->size + sizeof(child_block_t);
+        child->next = next->next;
+        if(next->next != NULL){
+            ((child_block_t*)next->next)->prev = (struct child_block_t*)child;
+        }
+        heap_block_t* parent = (heap_block_t*)child->parent;
+        parent->free_size += sizeof(child_block_t);
+        if(optimize_block(parent)!=0){
+            __failure("Failed to deallocate memory");
+        }
+        return;
+    }
+    size_t diff = new_size - child->size - sizeof(child_block_t);
+    child_block_t* new_child = (child_block_t*)(((uint8_t*)child) + new_size + sizeof(child_block_t));
+    new_child->size = next->size - diff;
+    new_child->is_free = true;
+    new_child->next = next->next;
+    new_child->prev = (struct child_block_t*)child;
+    new_child->parent = (struct heap_block_t*)child->parent;
+    child->size = new_size;
+    child->next = (struct child_block_t*)new_child;
+    if(new_child->next != NULL){
+        ((child_block_t*)new_child->next)->prev = (struct child_block_t*)new_child;
+    }
+    heap_block_t* parent = (heap_block_t*)child->parent;
+    parent->free_size += new_child->size + sizeof(child_block_t);
+    if(optimize_block(parent)!=0){
+        __failure("Failed to deallocate memory");
+    }
+}
+
 void* realloc(void* ptr, size_t size){
     if(ptr == NULL){
         return malloc(size);
@@ -222,11 +291,31 @@ void* realloc(void* ptr, size_t size){
     }
     lock_heap();
     child_block_t* block = (child_block_t *) ptr - 1;
-    // Check if next child block is free and big enough
-    // TODO: Implement this
+    // Find if we have to shrink or grow
+    if(block->size > size){
+        // Shrink
+        shrink_child(block, size);
+        unlock_heap();
+        return ptr;
+    }
 
+    child_block_t* next = (child_block_t*)block->next;
+    if(next != NULL && next->is_free && next->size >= size - block->size - sizeof(child_block_t)){
+        // Grow
+        grow_child(block, size);
+        unlock_heap();
+        return ptr;
+    }
+    // Otherwise, we are going to have to allocate a new block
+    void* new_ptr = _malloc_no_lock(size);
+    if(new_ptr == NULL){
+        unlock_heap();
+        return NULL;
+    }
+    new_ptr = memcpy(new_ptr, ptr, block->size);
+    _free_no_lock(ptr);
     unlock_heap();
-    return NULL;
+    return new_ptr;
 }
 
 void _mlibc_dealloc_all(){
@@ -240,6 +329,17 @@ void _mlibc_dealloc_all(){
     unlock_heap();
 }
 
+size_t _mlibc_alloc_counts(){
+    lock_heap();
+    heap_block_t* top = &heap;
+    size_t count = 0;
+    while(top!=NULL){
+        count += top->allocated_children;
+        top = (heap_block_t*)top->next;
+    }
+    unlock_heap();
+    return count;
+}
 
 
 

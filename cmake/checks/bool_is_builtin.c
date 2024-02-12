@@ -1,1 +1,0 @@
-volatile bool x = true;

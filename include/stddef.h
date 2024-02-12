@@ -8,7 +8,7 @@ typedef _mlibc_ptrdiff_t ssize_t;
 // nullptr is a C23 feature
 // gcc 13 started supporting it
 
-#if defined(__GCC__) && __GCC__ >= 13
+#if __STDC_VERSION__ >= 201112L
 #define NULL nullptr
 #else
 #define NULL ((void*)0)
