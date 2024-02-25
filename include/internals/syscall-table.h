@@ -9,6 +9,7 @@ enum Syscall {
     SYS_write = 1,
     SYS_open = 2,
     SYS_close = 3,
+    SYS_lseek = 8,
     SYS_mmap = 9,
     SYS_mprotect = 10,
     SYS_munmap = 11,
@@ -16,14 +17,15 @@ enum Syscall {
 };
 #elif _MLIBC_WORDSIZE == 4
 enum Syscall {
+    SYS_exit = 1
     SYS_read = 3,
     SYS_write = 4,
     SYS_open = 5,
     SYS_close = 6,
+    SYS_lseek = 19,
     SYS_mmap = 90,
-    SYS_mprotect = 125,
     SYS_munmap = 91,
-    SYS_exit = 1
+    SYS_mprotect = 125
 };
 #else
 #error "Unsupported word size"

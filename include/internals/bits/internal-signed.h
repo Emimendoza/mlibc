@@ -11,3 +11,5 @@ typedef _mlibc_int64_t _mlibc_ptrdiff_t;
 __extension__ typedef signed long long int _mlibc_int64_t;
 typedef _mlibc_int32_t _mlibc_ptrdiff_t;
 #endif
+
+typedef _mlibc_ptrdiff_t _mlibc_off_t;

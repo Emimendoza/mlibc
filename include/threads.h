@@ -2,6 +2,8 @@
 #include "internals/bits/internal-signed.h"
 #include "internals/bits/internal-unsigned.h"
 
+typedef _mlibc_size_t thrd_t;
+
 enum{
     mtx_plain = 0b1,
     mtx_recursive = 0b10,
@@ -18,7 +20,7 @@ enum{
 
 // Using futex from linux kernel
 typedef struct{
-    volatile _mlibc_size_t _owner;
+    volatile thrd_t _owner;
     volatile _mlibc_ptrdiff_t _count;
     volatile _mlibc_uint32_t _futex;
     volatile int _type;

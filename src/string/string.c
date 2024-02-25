@@ -1,4 +1,5 @@
 #include <string.h>
+#include <stdlib.h>
 #include <internals/bits/wordsize.h>
 
 // Will chose one of:
@@ -69,10 +70,36 @@ char* strchr(const char* str, int c) {
     return (char*)str;
 }
 
+char* strdup(const char* src){
+    size_t string_length = strlen(src)*sizeof(char);
+    char* cpy = (char*) malloc(string_length);
+    return memcpy(cpy, src, string_length+1);
+}
+
 void* memset(void* ptr, int value, size_t num) {
     unsigned char* p = (unsigned char*)ptr;
     while (num--) {
         *p++ = (unsigned char)value;
     }
     return ptr;
+}
+
+void* memmove(void* dest, const void* src, size_t n){
+    if (src == dest) {
+        return dest;
+    }
+    if (src < dest){
+        const char* s = src;
+        char* d = dest;
+        for(size_t i = n; i > 0; i--){
+            d[i-1] = s[i-1];
+        }
+    } else {
+        const char* s = src;
+        char* d = dest;
+        for(size_t i = 0; i < n; i++){
+            d[i] = s[i];
+        }
+    }
+    return dest;
 }

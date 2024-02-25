@@ -1,5 +1,7 @@
 #pragma once
 #include <stddef.h>
+#include <stdio.h>
+#include "vector.h"
 
 typedef enum{
     O_RDONLY = 0,
@@ -21,9 +23,20 @@ typedef enum{
     O_PATH = 0x200000,
     O_TMPFILE = 0x400000,
     O_NDELAY = O_NONBLOCK
-}mode_t;
+}flags_t;
 
-int __open(const char* path, int flags, mode_t mode);
+enum{
+    SEEK_SET = 0,
+    SEEK_CUR = 1,
+    SEEK_END = 2
+};
+
+
+
+int __init_files();
+
+int __open(const char* path, flags_t, int mode);
 int __close(int fd);
 ssize_t __read(int fd, void* buf, size_t count);
 ssize_t __write(int fd, const void* buf, size_t count);
+_mlibc_off_t __lseek(int fd, _mlibc_off_t offset, int whence);

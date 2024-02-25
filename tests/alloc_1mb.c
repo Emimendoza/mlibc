@@ -1,5 +1,7 @@
 #include <stdlib.h>
 
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "MemoryLeak"
 int main(){
     uint8_t* ptr = (uint8_t*) malloc(1024*1024);
     for(size_t i = 0; i < 1024*1024; i++){
@@ -35,3 +37,5 @@ int main(){
     free(n_ptr);
     return 0;
 }
+
+#pragma clang diagnostic pop

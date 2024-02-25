@@ -8,22 +8,25 @@
 #pragma clang diagnostic ignored "-Wvoid-pointer-to-int-cast"
 #if _MLIBC_WORDSIZE == 8
 extern void* _mlibc_syscall_64(uint64_t number, uint64_t arg1, uint64_t arg2, uint64_t arg3, uint64_t arg4, uint64_t arg5, uint64_t arg6);
+extern uint32_t _mlibc_syscall_64_alt(uint64_t number, uint64_t arg1, uint64_t arg2, uint64_t arg3, uint64_t arg4, uint64_t arg5, uint64_t arg6);
 #define _mlibc_syscall _mlibc_syscall_64
+#define _mlibc_syscall_ret32 _mlibc_syscall_64_alt
 typedef uint64_t ptr_t;
 #elif _MLIBC_WORDSIZE == 4
-#error "32-bit malloc not implemented"
+#error "32-bit syscalls are not implemented yet"
 #endif
+
 
 volatile size_t _mlibc_page_size = 0;
 volatile uint8_t _mlibc_page_size_lock = 0;
 
 
-int __open(const char* path, int flags, mode_t mode) {
-    return (int) _mlibc_syscall(SYS_open, (ptr_t)path, flags, mode, 0, 0, 0);
+int __open(const char* path, flags_t flags,  int mode) {
+    return (int) _mlibc_syscall_ret32(SYS_open, (ptr_t)path, flags, mode, 0, 0, 0);
 }
 
 int __close(int fd) {
-    return (int) _mlibc_syscall(SYS_close, fd, 0, 0, 0, 0, 0);
+    return (int) _mlibc_syscall_ret32(SYS_close, fd, 0, 0, 0, 0, 0);
 }
 
 ssize_t __read(int fd, void* buf, size_t count) {
@@ -39,11 +42,15 @@ void* __mmap(void* addr, size_t length, PROT prot, MAP flags, int fd, off_t offs
 }
 
 int __munmap(void* addr, size_t length) {
-    return (int) _mlibc_syscall(SYS_munmap, (ptr_t) addr, length, 0, 0, 0, 0);
+    return (int) _mlibc_syscall_ret32(SYS_munmap, (ptr_t) addr, length, 0, 0, 0, 0);
+}
+
+_mlibc_off_t __lseek(int fd, _mlibc_off_t offset, int whence){
+    return (_mlibc_off_t) _mlibc_syscall(SYS_lseek, fd, offset, whence, 0, 0, 0);
 }
 
 int __mprotect(void* addr, size_t length, PROT prot) {
-    return (int) _mlibc_syscall(SYS_mprotect, (ptr_t)addr, length, prot, 0, 0, 0);
+    return (int) _mlibc_syscall_ret32(SYS_mprotect, (ptr_t)addr, length, prot, 0, 0, 0);
 }
 
 size_t __getpagesize() {

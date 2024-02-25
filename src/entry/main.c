@@ -2,6 +2,7 @@
 
 #include <stdlib.h>
 #include <internals/vector.h>
+#include <internals/file.h>
 
 typedef void (*atexit_func)(void);
 
@@ -12,6 +13,9 @@ extern volatile vector(atexit_func) _mlibc_atexit_funcs;
     // Any initialization code can be added here
     if(vector_init(_mlibc_atexit_funcs) != 0){
         exit(1); // Out of memory
+    }
+    if(__init_files() != 0){
+        exit(1);
     }
     int exit_code = _mlibc_main(argc, argv);
     // Any cleanup code can be added here
