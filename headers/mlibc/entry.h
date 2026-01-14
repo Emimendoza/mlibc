@@ -10,7 +10,9 @@ struct auxv_t {
 	} a_un;
 };
 
-extern auxv_t* mlibc_auxv[];
+const auxv_t* getauxvect(size_t type);
 
+extern "C" {
 EXPORT [[noreturn]]
 void __mlibc_init(void*);
+}
