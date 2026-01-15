@@ -10,6 +10,8 @@ struct auxv_t {
 	} a_un;
 };
 
+using void_fn_t = void(*)(void);
+
 const auxv_t* getauxvect(size_t type);
 
 extern "C" {
