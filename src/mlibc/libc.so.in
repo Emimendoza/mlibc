@@ -1,0 +1,1 @@
+GROUP (libmlibc.so AS_NEEDED(${INTERPRETER_PATH}))

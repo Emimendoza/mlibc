@@ -9,7 +9,7 @@ long __sys5(long n, ...);
 long __sys6(long n, ...);
 #include <_mlibc_internal/cpp_end.h>
 template <typename... Args>
-long sys(const long number, Args... args) {
+long constexpr sys(const long number, Args... args) {
 	if constexpr (sizeof...(Args) == 0) {
 		return __sys0(number);
 	} else if constexpr (sizeof...(Args) == 1) {

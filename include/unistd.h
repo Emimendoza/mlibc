@@ -3,5 +3,6 @@
 
 long syscall(long number, ...);
 int getpagesize();
+int close(int fd);
 
 #include "_mlibc_internal/cpp_end.h"

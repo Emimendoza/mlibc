@@ -7,10 +7,9 @@ struct auxv_t {
 	size_t a_type;
 	union {
 		size_t a_val;
+		void*  a_ptr;
 	} a_un;
 };
-
-using void_fn_t = void(*)(void);
 
 const auxv_t* getauxvect(size_t type);
 
