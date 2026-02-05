@@ -1,6 +1,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <signal.h>
 
 static const int page_size =  [] {
 	return getpagesize();
@@ -14,5 +15,6 @@ int main() {
 	free(ptr);
 	ptr = malloc(test + page_size);
 	free(ptr);
+	raise(SIGTERM);
 	return 0;
 }

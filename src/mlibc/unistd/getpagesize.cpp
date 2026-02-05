@@ -4,6 +4,8 @@
 #include <mlibc/entry.h>
 #include <assert.h>
 
+using namespace mlibc;
+
 EXPORT
 int getpagesize() {
 	auto* auxv_entry = getauxvect(AT_PAGESZ);

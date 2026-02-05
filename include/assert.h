@@ -2,7 +2,7 @@
 #include "_mlibc_internal/macros.h"
 #include "_mlibc_internal/cpp_start.h"
 #ifndef NDEBUG
-__M_LIBC_NORETURN
+__MLIBC_NORETURN
 void __mlibc_assert_fail(const char* expr, const char* file, int line);
 
 #define assert(...) \

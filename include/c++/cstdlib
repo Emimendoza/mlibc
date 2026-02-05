@@ -1,0 +1,25 @@
+#pragma once
+#include <stdlib.h>
+
+namespace std {
+// Memory management
+using ::malloc;
+using ::aligned_alloc;
+using ::calloc;
+using ::realloc;
+using ::free;
+
+// Program termination
+using ::abort;
+using ::exit;
+using ::_Exit;
+using ::quick_exit;
+
+// Register exit functions
+using ::atexit;
+using ::at_quick_exit;
+
+// String stuff
+using ::strtoul;
+
+}

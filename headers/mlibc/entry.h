@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <stddef.h>
 
+namespace mlibc {
 struct auxv_t {
 	size_t a_type;
 	union {
@@ -13,7 +14,10 @@ struct auxv_t {
 
 const auxv_t* getauxvect(size_t type);
 
+void init_tls();
+
 extern "C" {
-EXPORT [[noreturn]]
-void __mlibc_init(void*);
+	EXPORT [[noreturn]]
+	void __mlibc_init(void*);
+}
 }

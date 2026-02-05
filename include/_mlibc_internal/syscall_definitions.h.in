@@ -1,0 +1,6 @@
+#pragma once
+#ifndef __MLIBC_SYSCALL_IMPORT
+#error "This file should only be included from sys/syscall.h"
+#endif
+
+@SYSCALL_DEFINITIONS@

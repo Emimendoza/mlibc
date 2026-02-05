@@ -12,3 +12,5 @@
 	#define UNREACHABLE() do {} while (1)
 #endif
 #define CEXPORT extern "C" EXPORT
+#define CWEAK extern "C" WEAK
+#define INLINE inline __attribute__((always_inline))

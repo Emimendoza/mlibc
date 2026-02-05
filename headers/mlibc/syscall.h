@@ -1,4 +1,6 @@
 #pragma once
+#include <sys/syscall.h>
+#include <mlibc/macros.h>
 #include <_mlibc_internal/cpp_start.h>
 long __sys0(long n);
 long __sys1(long n, ...);
@@ -8,7 +10,7 @@ long __sys4(long n, ...);
 long __sys5(long n, ...);
 long __sys6(long n, ...);
 #include <_mlibc_internal/cpp_end.h>
-template <typename... Args>
+template <typename... Args> INLINE
 long constexpr sys(const long number, Args... args) {
 	if constexpr (sizeof...(Args) == 0) {
 		return __sys0(number);
